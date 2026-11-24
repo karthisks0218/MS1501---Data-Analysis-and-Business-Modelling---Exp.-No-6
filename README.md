@@ -42,4 +42,57 @@ A sample retail transaction dataset containing **10 transactions** across **4 gr
 
 ## Program & Output
 
+# Step 1: Import Required Libraries
+import pandas as pd
+from mlxtend.frequent_patterns import apriori, association_rules
+
+# Step 2: Create Sample Transaction Dataset
+dataset = [
+    ['Milk', 'Bread', 'Eggs'],
+    ['Milk', 'Bread'],
+    ['Milk', 'Eggs'],
+    ['Bread', 'Butter'],
+    ['Milk', 'Bread', 'Butter', 'Eggs'],
+    ['Bread', 'Eggs'],
+    ['Milk', 'Butter'],
+    ['Milk', 'Bread', 'Butter'],
+    ['Bread', 'Butter', 'Eggs'],
+    ['Milk', 'Bread', 'Butter', 'Eggs']
+]
+
+# Step 3: Convert Dataset into a Pandas DataFrame (One-Hot Encoding)
+from mlxtend.preprocessing import TransactionEncoder
+
+te = TransactionEncoder()
+te_ary = te.fit(dataset).transform(dataset)
+df = pd.DataFrame(te_ary, columns=te.columns_)
+
+print("----- Transaction Dataset (One-Hot Encoded) -----")
+print(df.head())
+
+# Step 4: Apply Apriori Algorithm to Find Frequent Itemsets
+frequent_itemsets = apriori(df, min_support=0.3, use_colnames=True)
+
+print("\n----- Frequent Itemsets -----")
+print(frequent_itemsets)
+
+# Step 5: Generate Association Rules
+rules = association_rules(frequent_itemsets, metric="lift", min_threshold=1.0)
+
+print("\n----- Association Rules -----")
+print(rules[['antecedents', 'consequents', 'support', 'confidence', 'lift']])
+
+# Step 6: Sort and Filter Strong Rules
+strong_rules = rules[(rules['confidence'] >= 0.6) & (rules['lift'] > 1)]
+
+print("\n----- Strong Association Rules (Confidence >= 0.6, Lift > 1) -----")
+print(strong_rules[['antecedents', 'consequents', 'support', 'confidence', 'lift']])
+
+# Output 
+
+<img width="1920" height="1144" alt="image" src="https://github.com/user-attachments/assets/1b4ca65c-7fe4-4208-bace-7526c5ccc23e" />
+
+
 ## Result
+
+The Apriori algorithm successfully discovered frequent itemsets and strong association rules. Items like Bread, Butter, and Eggs often appear together, revealing useful buying patterns for cross-selling and store layout optimization.
